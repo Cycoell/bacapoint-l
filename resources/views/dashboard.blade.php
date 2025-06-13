@@ -102,23 +102,22 @@
           <div class="overflow-x-auto">
             <div class="flex gap-4 whitespace-nowrap justify-center">
 
-            @foreach ($books as $index => $book)
-              @if ($index < 4) <!-- Hanya menampilkan 4 buku -->
-                <a href="{{ url('/pages/reading?id=' . $book->id) }}" class="block">
-                  <div class="w-44 h-80 flex-none bg-slate-300 rounded-lg shadow p-3 mr-4 hover:shadow-lg transition">
-                    <div class="h-48 w-full overflow-hidden rounded mb-2">
-                      <img src="{{ $book->cover_path }}" alt="Cover" class="w-full h-full object-cover" />
-                    </div>
-                    <div class="text-wrap space-y-1">
-                      <h3 class="text-base font-semibold">{{ $book->judul }}</h3>
-                      <p class="text-xs text-gray-500">
-                        {{ $book->tahun }} • {{ $book->genre }} • {{ $book->author }}
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              @endif
-            @endforeach
+                @foreach ($books as $index => $book)
+                  @if ($index < 4) <a href="{{ route('reading', ['id' => $book->id]) }}" class="block">
+                      <div class="w-44 h-80 flex-none bg-slate-300 rounded-lg shadow p-3 mr-4 hover:shadow-lg transition">
+                        <div class="h-48 w-full overflow-hidden rounded mb-2">
+                          <img src="{{ $book->cover_path }}" alt="Cover" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="text-wrap space-y-1">
+                          <h3 class="text-base font-semibold">{{ $book->judul }}</h3>
+                          <p class="text-xs text-gray-500">
+                            {{ $book->tahun }} • {{ $book->genre }} • {{ $book->author }}
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                  @endif
+                @endforeach
 
           </div>
         </div>

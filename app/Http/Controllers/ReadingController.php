@@ -21,13 +21,17 @@ class ReadingController extends Controller
 
         // Cek apakah user sudah login, jika ya redirect ke reading-auth
         if (Auth::check()) {
-            return redirect("/reading-auth/{$id}");
+            return redirect()->route('reading', ['id' => $id]); // Menggunakan route() helper
         }
 
         // Batasi akses hanya untuk buku ID 1-4 (tanpa login)
         if ($id > 4) {
-            return redirect('/login')->with('error', 'Anda harus login untuk membaca buku ini');
+            // Arahkan ke halaman login dengan parameter redirect
+            return redirect()->route('login', ['redirect' => url()->current()])->with('error', 'Anda harus login untuk membaca buku ini'); // **PERUBAHAN DI SINI**
         }
+        
+    
+
 
         // Get book data
         $book = DB::table('book_list')->where('id', $id)->first();

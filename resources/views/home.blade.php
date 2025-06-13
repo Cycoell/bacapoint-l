@@ -44,54 +44,55 @@
         
         <!-- BAR SECTION -->
         <section class="mt-2">
-            <div class="container mx-auto max-w-4xl px-5 py-6 bg-slate-100 rounded-lg">
-                <!-- Link ke semua buku -->
-                <div class="flex justify-end mb-4">
-                    <a href="{{ route('all.books') }}" class="text-sm text-blue-600 hover:underline font-semibold">
-                        Lihat Semua Buku →
-                    </a>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <div class="flex gap-4 whitespace-nowrap justify-center">
-                        @if($books && $books->count() > 0)
-                            @foreach ($books->where('id', '<=', 4) as $book)
-                                @if($book && isset($book->id) && $book->id)
-                                    @php
-                                        $link = route('reading.public', ['id' => $book->id]);
-                                    @endphp
-                                    <a href="{{ $link }}" class="block">
-                                        <div class="w-44 h-80 flex-none bg-slate-300 rounded-lg shadow p-3 mr-4 hover:shadow-lg transition">
-                                            <div class="h-48 w-full overflow-hidden rounded mb-2">
-                                                @if(isset($book->cover_path) && $book->cover_path)
-                                                    <img src="{{ e($book->cover_path) }}"
-                                                        alt="Cover buku {{ e($book->judul ?? 'Tanpa Judul') }}"
-                                                        class="w-full h-full object-cover" />
-                                                @else
-                                                    <div class="w-full h-full bg-gray-300 flex items-center justify-center">
-                                                        <span class="text-gray-500">No Cover</span>
-                                                    </div>
-                                                @endif
+    <div class="container mx-auto max-w-4xl px-5 py-6 bg-slate-100 rounded-lg">
+        <div class="flex justify-end mb-4">
+            <a href="{{ route('all.books') }}" class="text-sm text-blue-600 hover:underline font-semibold">
+                Lihat Semua Buku →
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <div class="flex gap-4 whitespace-nowrap justify-center">
+                @if($books && $books->count() > 0)
+                    @foreach ($books->where('id', '<=', 4) as $book)
+                        @if($book && isset($book->id) && $book->id)
+                            @php
+                                // Periksa apakah user sudah login, jika ya gunakan reading-auth
+                                // Jika tidak, atau jika buku ID <= 4, gunakan reading.public
+                                $link = Auth::check() ? route('reading', ['id' => $book->id]) : route('reading.public', ['id' => $book->id]);
+                            @endphp
+                            <a href="{{ $link }}" class="block">
+                                <div class="w-44 h-80 flex-none bg-slate-300 rounded-lg shadow p-3 mr-4 hover:shadow-lg transition">
+                                    <div class="h-48 w-full overflow-hidden rounded mb-2">
+                                        @if(isset($book->cover_path) && $book->cover_path)
+                                            <img src="{{ e($book->cover_path) }}"
+                                                alt="Cover buku {{ e($book->judul ?? 'Tanpa Judul') }}"
+                                                class="w-full h-full object-cover" />
+                                        @else
+                                            <div class="w-full h-full bg-gray-300 flex items-center justify-center">
+                                                <span class="text-gray-500">No Cover</span>
                                             </div>
-                                            <div class="text-wrap space-y-1">
-                                                <h3 class="text-base font-semibold">{{ e($book->judul ?? 'Tanpa Judul') }}</h3>
-                                                <p class="text-xs text-gray-500">
-                                                    {{ e($book->tahun ?? 'N/A') }} • {{ e($book->genre ?? 'N/A') }} • {{ e($book->author ?? 'N/A') }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                @endif
-                            @endforeach
-                        @else
-                            <div class="w-full text-center py-8">
-                                <p class="text-gray-500">Belum ada buku tersedia</p>
-                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="text-wrap space-y-1">
+                                        <h3 class="text-base font-semibold">{{ e($book->judul ?? 'Tanpa Judul') }}</h3>
+                                        <p class="text-xs text-gray-500">
+                                            {{ e($book->tahun ?? 'N/A') }} • {{ e($book->genre ?? 'N/A') }} • {{ e($book->author ?? 'N/A') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
                         @endif
+                    @endforeach
+                @else
+                    <div class="w-full text-center py-8">
+                        <p class="text-gray-500">Belum ada buku tersedia</p>
                     </div>
-                </div>
+                @endif
             </div>
-        </section>
+        </div>
+    </div>
+</section>
         <!-- BAR SECTION -->
         
         <!-- LINK FOOTER -->
