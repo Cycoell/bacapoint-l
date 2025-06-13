@@ -43,3 +43,17 @@ Route::get('/api/books/random-titles', [BookSearchController::class, 'getRandomB
 // API routes untuk reading functionality (ROUTES YANG MUNGKIN DIBUTUHKAN)
 Route::get('/api/books/{id}', [ReadingController::class, 'getBookData'])->name('api.books.show');
 Route::get('/api/books/{bookId}/chapters', [ReadingController::class, 'getChapterContent'])->name('api.books.chapters');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'showProfile']);
+    Route::get('/profile/{section}', [ProfileController::class, 'loadSection'])->name('profile.section');
+    
+    // Rute baru untuk update profil
+    Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    
+    // Rute baru untuk upload foto profil
+    Route::post('/profile/update-photo', [ProfileController::class, 'updateProfilePhoto'])->name('profile.update_photo');
+    
+    // Rute baru untuk ganti password
+    Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
+});

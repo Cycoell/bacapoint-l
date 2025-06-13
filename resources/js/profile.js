@@ -56,22 +56,163 @@ function loadContent(page, el = null) {
 
             // Simpan ke sessionStorage supaya bisa dipakai ulang saat reload
             sessionStorage.setItem('currentPage', page);
+
+            // Setelah konten dimuat, inisialisasi event listener spesifik untuk section tersebut
+            if (page === 'account') {
+                initializeAccountSectionListeners();
+            }
         })
-.catch(async error => {
-    let errorMessage = error.message;
-    try {
-        const response = await fetch(`/profile/${sessionStorage.getItem('currentPage')}`);
-        if (!response.ok) {
-            const text = await response.text();
-            errorMessage += ` - Server response: ${response.status} ${response.statusText} - ${text}`;
-        }
-    } catch (e) {
-        errorMessage += ` - Additional fetch error: ${e.message}`;
-    }
-    showError(errorMessage);
-});
+        .catch(async error => {
+            let errorMessage = error.message;
+            try {
+                const response = await fetch(`/profile/${sessionStorage.getItem('currentPage')}`);
+                if (!response.ok) {
+                    const text = await response.text();
+                    errorMessage += ` - Server response: ${response.status} ${response.statusText} - ${text}`;
+                }
+            } catch (e) {
+                errorMessage += ` - Additional fetch error: ${e.message}`;
+            }
+            showError(errorMessage);
+        });
 }
-window.loadContent = loadContent;
+window.loadContent = loadContent; // Membuat loadContent bisa diakses global
+
+// Fungsi untuk mengaktifkan/menonaktifkan input (global agar bisa dipanggil dari onclick)
+window.toggleEdit = function(field) {
+    const input = document.querySelector(`[name="${field}"]`);
+    if (input) {
+        if (input.readOnly === true || input.disabled === true) {
+            input.readOnly = false;
+            input.disabled = false;
+            input.classList.remove('bg-gray-50');
+            input.classList.add('bg-white');
+            input.focus();
+        } else {
+            input.readOnly = true;
+            input.disabled = true;
+            input.classList.add('bg-gray-50');
+            input.classList.remove('bg-white');
+        }
+    }
+};
+
+// Fungsi untuk menampilkan modal ganti password (global agar bisa dipanggil dari onclick)
+window.showChangePasswordModal = function() {
+    const passwordModal = document.getElementById('passwordModal');
+    if (passwordModal) {
+        passwordModal.classList.remove('hidden');
+        passwordModal.classList.add('flex'); // Tambahkan flex saat ditampilkan
+    }
+};
+
+
+// Fungsi untuk menginisialisasi event listener setelah section 'account' dimuat
+function initializeAccountSectionListeners() {
+    // Handle form submission for profile update using AJAX
+    const updateProfileForm = document.getElementById('updateProfileForm');
+    if (updateProfileForm) {
+        updateProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah submit form default
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            Swal.fire({
+                title: 'Menyimpan Perubahan...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch(form.action, {
+                method: 'POST', // Method akan jadi POST karena @method('PUT')
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Sukses!', data.message, 'success');
+                    // Optional: Update UI if needed, or reload section if necessary
+                    // loadContent('account'); // Reload bagian akun untuk menampilkan data terbaru (jika diperlukan)
+                } else {
+                    Swal.fire('Gagal!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Terjadi kesalahan saat menyimpan perubahan.', 'error');
+            });
+        });
+    }
+
+    // Handle form submission for password change using AJAX
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah submit form default
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            Swal.fire({
+                title: 'Mengubah Password...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch(form.action, {
+                method: 'POST', // Method akan jadi POST karena @method('PUT')
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Sukses!', data.message, 'success');
+                    document.getElementById('passwordModal').classList.add('hidden'); // Sembunyikan modal
+                    document.getElementById('passwordModal').classList.remove('flex'); // Hapus flex juga
+                    form.reset(); // Reset form password
+                } else {
+                    Swal.fire('Gagal!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Terjadi kesalahan saat mengubah password.', 'error');
+            });
+        });
+    }
+
+    // Menangani perubahan input file untuk upload foto
+    const uploadProfilePictureForm = document.getElementById('uploadProfilePictureForm');
+    if (uploadProfilePictureForm) {
+        const profilePictureInput = document.getElementById('profile_picture');
+        if (profilePictureInput) {
+            profilePictureInput.removeEventListener('change', function() { /* remove previous listener if any */ }); // Remove listener to prevent duplicates
+            profilePictureInput.addEventListener('change', function() {
+                // Form akan otomatis terkirim via onchange di label for input file
+                Swal.fire({
+                    title: 'Mengunggah Foto...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                uploadProfilePictureForm.submit(); // Submit form saat file dipilih
+            });
+        }
+    }
+}
+
 
 // Saat halaman pertama kali dibuka, langsung tampilkan "Profile"
 document.addEventListener('DOMContentLoaded', function () {
