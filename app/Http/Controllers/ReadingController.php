@@ -247,6 +247,7 @@ class ReadingController extends Controller
             'is_completed_for_points' => $newIsCompletedForPoints,
             'completed_at' => $newCompletedAt,
             'points_awarded_for_book' => $newPointsAwardedForBookCumulative, // Gunakan nilai kumulatif yang sudah dihitung
+            'updated_at' => now(),
         ];
 
 

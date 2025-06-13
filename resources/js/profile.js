@@ -150,6 +150,49 @@ function initializeAccountSectionListeners() {
         });
     }
 
+    // Fungsi untuk menampilkan modal konfirmasi (confirmModal)
+window.showConfirmModal = function() {
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) {
+        confirmModal.classList.remove('hidden');
+        confirmModal.classList.add('flex'); // Tambahkan flex untuk display dan centering
+    }
+};
+
+// Fungsi untuk menyembunyikan modal konfirmasi (confirmModal)
+window.hideConfirmModal = function() {
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) {
+        confirmModal.classList.add('hidden');
+        confirmModal.classList.remove('flex');
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ... (kode DOMContentLoaded yang sudah ada) ...
+
+    const confirmYesBtn = document.getElementById('confirmYes');
+    const confirmNoBtn = document.getElementById('confirmNo');
+
+    if (confirmYesBtn) {
+        confirmYesBtn.addEventListener('click', function() {
+            // Logika ketika 'Ya' diklik
+            console.log('Konfirmasi Ya diklik');
+            // Misalnya, panggil fungsi untuk menghapus buku
+            // deleteBook(); // <-- Anda perlu membuat fungsi deleteBook ini
+            hideConfirmModal(); // Sembunyikan modal setelah aksi
+        });
+    }
+
+    if (confirmNoBtn) {
+        confirmNoBtn.addEventListener('click', function() {
+            // Logika ketika 'Batal' diklik
+            console.log('Konfirmasi Batal diklik');
+            hideConfirmModal(); // Sembunyikan modal
+        });
+    }
+});
+
     // Handle form submission for password change using AJAX
     const changePasswordForm = document.getElementById('changePasswordForm');
     if (changePasswordForm) {
@@ -220,3 +263,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const activeBtn = document.getElementById(`btn-${current}`);
     loadContent(current, activeBtn);
 });
+
+// Di resources/js/profile.js
+window.showChangePasswordModal = function() {
+    const passwordModal = document.getElementById('passwordModal');
+    if (passwordModal) {
+        passwordModal.classList.remove('hidden');
+        passwordModal.classList.add('flex'); // <--- PASTIKAN BARIS INI ADA
+    }
+};
