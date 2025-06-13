@@ -5,10 +5,10 @@
         <div class="flex flex-col lg:flex-row items-center justify-between relative gap-4">
             <div class="w-16 h-16"></div> <!-- Logo -->
             <div class="w-[140px] h-[140px] -top-8 left-8 absolute">
-                <a href="{{ session()->has('user') ? url('/dashboard') : url('/') }}" 
-                class="transition-transform duration-300 hover:scale-110">
+                <a href="{{ Auth::check() ? url('/dashboard') : url('/') }}" 
+                    class="transition-transform duration-300 hover:scale-110">
                     <img src="{{ asset('assets/logo_samping.png') }}" alt="BacaPoint" 
-                        class="bg-contain w-full h-full object-contain" />
+                    class="bg-contain w-full h-full object-contain" />
                 </a>
             </div>
 
