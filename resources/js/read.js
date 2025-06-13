@@ -289,7 +289,7 @@ function loadPDF() {
             // Muat progres terakhir pengguna dari backend jika user login
             if (isLoggedIn && bookId) {
                 // Request untuk mendapatkan progres awal
-                fetch(`${config.getProgressEndpoint}?book_id=${bookId}&user_id=${userId}`)
+                fetch(`${config.getProgressEndpoint}?book_id=${bookId}`)
                     .then(response => {
                         if (!response.ok) {
                             // Jika ada error non-2xx (misal 404), throw error
