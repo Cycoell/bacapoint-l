@@ -31,7 +31,7 @@ class ReadingController extends Controller
 
         // Get book data
         $book = DB::table('book_list')->where('id', $id)->first();
-        
+
         if (!$book) {
             return redirect('/')->with('error', 'Buku tidak ditemukan');
         }
@@ -40,7 +40,7 @@ class ReadingController extends Controller
         $viewData = [
             'book' => $book,
             'judul' => $book->title ?? $book->judul ?? 'Judul Tidak Tersedia',
-            'filePath' => $book->file_path ?? $book->pdf_path ?? asset('books/' . $book->filename),
+            'filePath' => asset($book->pdf_path), // **PERUBAHAN DI SINI**
             'bookId' => $id,
             'user' => null, // No user for public access
             'canEarnPoints' => false, // Cannot earn points without login
@@ -64,7 +64,7 @@ class ReadingController extends Controller
 
         // Get book data
         $book = DB::table('book_list')->where('id', $id)->first();
-        
+
         if (!$book) {
             return redirect('/dashboard')->with('error', 'Buku tidak ditemukan');
         }
@@ -76,7 +76,7 @@ class ReadingController extends Controller
         $viewData = [
             'book' => $book,
             'judul' => $book->title ?? $book->judul ?? 'Judul Tidak Tersedia',
-            'filePath' => $book->file_path ?? $book->pdf_path ?? asset('books/' . $book->filename),
+            'filePath' => asset($book->pdf_path), // **PERUBAHAN DI SINI**
             'bookId' => $id,
             'user' => $user,
             'canEarnPoints' => true, // Can earn points when logged in

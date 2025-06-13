@@ -43,8 +43,8 @@
                                         <div class="h-48 w-full overflow-hidden rounded mb-3">
                                             @if(isset($book->cover_path) && $book->cover_path)
                                                 <img src="{{ e($book->cover_path) }}"
-                                                     alt="Cover buku {{ e($book->judul ?? 'Tanpa Judul') }}"
-                                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                                    alt="Cover buku {{ e($book->judul ?? 'Tanpa Judul') }}"
+                                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                             @else
                                                 <div class="w-full h-full bg-gray-300 flex items-center justify-center">
                                                     <span class="text-gray-500">No Cover</span>
