@@ -1,0 +1,62 @@
+# ====================================
+# 🚀 ENVIRONMENT FILES
+# ====================================
+.env
+.env.example
+.env.local
+.env.production
+.env.backup
+
+# ====================================
+# 📦 DEPENDENCIES
+# ====================================
+/vendor
+/node_modules
+
+# ====================================
+# 🔧 LARAVEL STORAGE
+# ====================================
+/storage/*.key
+/storage/logs
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/pail
+
+# ====================================
+# 🌐 PUBLIC ASSETS
+# ====================================
+/public/storage
+/public/build
+/public/hot
+
+# ====================================
+# 🧪 TESTING & CACHING
+.phpunit.result.cache
+/.phpunit.cache
+
+# ====================================
+# 🧠 IDE / EDITOR SETTINGS
+/.idea
+/.vscode
+/.fleet
+/.zed
+
+# ====================================
+# ⚙️ SYSTEM FILES & CONFIGS
+.DS_Store
+Thumbs.db
+npm-debug.log
+yarn-error.log
+.phpactor.json
+auth.json
+
+# ====================================
+# 🏠 HOMESTEAD (Jika Digunakan)
+/Homestead.json
+/Homestead.yaml
+
+
+/public/assets/*
+!/public/assets/.gitkeep
