@@ -109,68 +109,48 @@
           </div>
         </div>
       </section>
+
       <section class="my-8">
-      <div class="container mx-auto max-w-4xl bg-gradient-to-r from-emerald-200 to-green-300 px-6 py-6 rounded-xl shadow-xl border border-green-400"> {{-- Background gradien, padding, rounded, shadow, border --}}
+      <div class="container mx-auto max-w-4xl bg-gradient-to-br from-emerald-200 to-green-300 px-8 py-8 rounded-3xl shadow-2xl border border-blue-200 transform transition-all duration-300 hover:shadow-xl"> {{-- Ubah gradasi warna, padding lebih besar, rounded lebih, shadow lebih kuat, border --}}
         
-        <h2 class="text-xl font-bold text-gray-900 mb-5">Library Anda</h2> {{-- Judul lebih menonjol --}}
+        <div class="flex justify-between items-center mb-6"> {{-- Margin bawah yang konsisten --}}
+          <h2 class="text-2xl font-extrabold text-gray-800 tracking-tight">Buku Favorit Anda</h2> {{-- Judul lebih besar, tebal, tracking tight --}}
+          <a href="{{ url('/profile/bookmark') }}" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center group"> {{-- Bold, hover effect --}}
+            Lihat Semua 
+            <svg class="w-4 h-4 ml-1 transform transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg> {{-- Ikon panah --}}
+          </a>
+        </div>
 
-        <div class="flex gap-6 overflow-x-auto scrollbar-hide pb-4"> {{-- Sesuaikan gap dan padding --}}
-          <a href="#" class="block flex-shrink-0"> {{-- Tambahkan a tag dan flex-shrink-0 --}}
-            <div class="w-40 h-[280px] bg-neutral-100 rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 border border-gray-200"> {{-- Ukuran kartu, rounded, shadow, hover --}}
-              <div class="h-[200px] w-full overflow-hidden"> {{-- Ukuran gambar --}}
-                <img src="{{ asset('assets/comic1.jpg') }}" alt="The Guy Upstairs" class="w-full h-full object-cover">
-              </div>
-              <div class="p-3 text-center"> {{-- Padding dan teks di tengah --}}
-                <h3 class="font-bold text-sm text-gray-800 line-clamp-2">The Guy Upstairs</h3>
-                <p class="text-xs text-gray-500">Ryu Ahnan</p>
-              </div>
-            </div>
-          </a>
-          <a href="#" class="block flex-shrink-0">
-            <div class="w-40 h-[280px] bg-neutral-100 rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 border border-gray-200">
-              <div class="h-[200px] w-full overflow-hidden">
-                <img src="{{ asset('assets/comic1.jpg') }}" alt="The Guy Upstairs" class="w-full h-full object-cover">
-              </div>
-              <div class="p-3 text-center">
-                <h3 class="font-bold text-sm text-gray-800 line-clamp-2">The Guy Upstairs</h3>
-                <p class="text-xs text-gray-500">Ryu Ahnan</p>
-              </div>
-            </div>
-          </a>
-          <a href="#" class="block flex-shrink-0">
-            <div class="w-40 h-[280px] bg-neutral-100 rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 border border-gray-200">
-              <div class="h-[200px] w-full overflow-hidden">
-                <img src="{{ asset('assets/comic1.jpg') }}" alt="The Guy Upstairs" class="w-full h-full object-cover">
-              </div>
-              <div class="p-3 text-center">
-                <h3 class="font-bold text-sm text-gray-800 line-clamp-2">The Guy Upstairs</h3>
-                <p class="text-xs text-gray-500">Ryu Ahnan</p>
-              </div>
-            </div>
-          </a>
-          <a href="#" class="block flex-shrink-0">
-            <div class="w-40 h-[280px] bg-neutral-100 rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 border border-gray-200">
-              <div class="h-[200px] w-full overflow-hidden">
-                <img src="{{ asset('assets/comic1.jpg') }}" alt="The Guy Upstairs" class="w-full h-full object-cover">
-              </div>
-              <div class="p-3 text-center">
-                <h3 class="font-bold text-sm text-gray-800 line-clamp-2">The Guy Upstairs</h3>
-                <p class="text-xs text-gray-500">Ryu Ahnan</p>
-              </div>
-            </div>
-          </a>
-          <a href="#" class="block flex-shrink-0">
-            <div class="w-40 h-[280px] bg-neutral-100 rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 border border-gray-200">
-              <div class="h-[200px] w-full overflow-hidden">
-                <img src="{{ asset('assets/comic1.jpg') }}" alt="The Guy Upstairs" class="w-full h-full object-cover">
-              </div>
-              <div class="p-3 text-center">
-                <h3 class="font-bold text-sm text-gray-800 line-clamp-2">The Guy Upstairs</h3>
-                <p class="text-xs text-gray-500">Ryu Ahnan</p>
-              </div>
-            </div>
-          </a>
-
+        <div class="flex gap-7 overflow-x-auto scrollbar-hide pb-5"> {{-- Sesuaikan gap dan padding --}}
+            @forelse ($bookmarkedBooks as $book)
+                @php
+                    $link = Auth::check() ? route('reading', ['id' => $book->id]) : route('reading.public', ['id' => $book->id]);
+                @endphp
+                <a href="{{ $link }}" class="block flex-shrink-0 group"> {{-- Tambahkan group untuk hover effect --}}
+                    <div class="w-44 h-[300px] bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform group-hover:scale-102 group-hover:shadow-2xl border border-gray-200"> {{-- Ukuran kartu, shadow lebih kuat, hover lebih halus dan scale --}}
+                        <div class="h-[210px] w-full overflow-hidden border-b border-gray-100"> {{-- Border bawah pada gambar --}}
+                            @if(isset($book->cover_path) && $book->cover_path)
+                                <img src="{{ asset($book->cover_path) }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-300"> {{-- Scale gambar pada hover --}}
+                            @else
+                                <div class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-sm">No Cover</div>
+                            @endif
+                        </div>
+                        <div class="p-3 text-center"> {{-- Padding dan teks di tengah --}}
+                            <h3 class="font-bold text-sm text-gray-800 leading-tight line-clamp-2">{{ $book->judul }}</h3>
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-1">{{ $book->author }}</p>
+                        </div>
+                    </div>
+                </a>
+            @empty
+                <div class="w-full text-center py-10 rounded-lg bg-gray-50 border border-gray-200"> {{-- Tampilan lebih bagus untuk empty state --}}
+                    <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5zM12 8v4m0 0v4m0-4h4m-4 0H8"></path></svg> {{-- Ikon buku kosong --}}
+                    <p class="text-lg font-medium text-gray-800">Anda belum memiliki buku favorit.</p>
+                    <p class="text-sm text-gray-600 mt-2">Mulai baca buku dan tambahkan ke favorit Anda!</p>
+                    <a href="{{ route('all.books') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                        Jelajahi Buku
+                    </a>
+                </div>
+            @endforelse
         </div>  
       </div>
     </section>
