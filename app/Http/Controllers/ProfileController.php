@@ -20,45 +20,90 @@ class ProfileController extends Controller
 
     public function loadSection($section)
     {
-        /** @var \App\Models\User $user */ // Type hinting untuk Intelephense
+        /** @var \App\Models\User $user */ 
         $user = Auth::user();
         
         // Validasi section yang diperbolehkan
-        $allowedSections = ['account', 'transaksi', 'bookmark', 'point'];
+        $allowedSections = ['account', 'transaksi', 'bookmark', 'point', 'riwayat-membaca']; // **TAMBAHKAN INI**
         if ($user->role === 'admin') {
             $allowedSections[] = 'grafik';
             $allowedSections[] = 'collection';
         }
 
         if (!in_array($section, $allowedSections)) {
-            // Mengembalikan error 404 jika section tidak diizinkan
             abort(404);
         }
 
         $data = compact('user'); // Data dasar untuk view
 
-        // **TAMBAHKAN LOGIKA INI UNTUK SECTION 'COLLECTION'**
+        // Logika untuk section 'collection'
         if ($section === 'collection' && $user->role === 'admin') {
             $books = DB::table('book_list')->orderBy('judul', 'asc')->get();
-            $data['books'] = $books; // Masukkan data buku ke array $data
-        }
-
+            $data['books'] = $books; 
+        } 
+        // Logika untuk section 'grafik'
         else if ($section === 'grafik' && $user->role === 'admin') {
             $genreData = DB::table('book_list')
                             ->select(DB::raw('genre, count(*) as total_books'))
                             ->groupBy('genre')
-                            ->whereNotNull('genre') // Hanya hitung genre yang tidak null
+                            ->whereNotNull('genre') 
                             ->orderBy('total_books', 'desc')
                             ->get();
 
             $labels = $genreData->pluck('genre')->toArray();
             $counts = $genreData->pluck('total_books')->toArray();
 
-            $data['genreLabels'] = json_encode($labels); // Encode ke JSON untuk JavaScript
-            $data['genreCounts'] = json_encode($counts); // Encode ke JSON untuk JavaScript
+            $data['genreLabels'] = json_encode($labels); 
+            $data['genreCounts'] = json_encode($counts); 
+        }
+        // **TAMBAHKAN LOGIKA INI UNTUK SECTION 'RIWAYAT MEMBACA'**
+        else if ($section === 'riwayat-membaca') {
+            $readingHistory = DB::table('reading_history')
+                                ->where('user_id', $user->id)
+                                ->join('book_list', 'reading_history.book_id', '=', 'book_list.id')
+                                ->select(
+                                    'reading_history.*', // Ambil semua kolom dari riwayat
+                                    'book_list.judul',
+                                    'book_list.author',
+                                    'book_list.cover_path',
+                                    'book_list.total_pages',
+                                    'book_list.pdf_path' // Mungkin dibutuhkan untuk link baca
+                                )
+                                ->orderBy('reading_history.last_read_at', 'desc') // Urutkan berdasarkan waktu terakhir membaca
+                                ->get();
+
+            $sedangMembaca = $readingHistory->filter(function($item) {
+                // Sedang membaca: progres kurang dari 100% DAN belum ditandai selesai
+                return $item->progress_percentage < 100 && $item->is_completed_for_points == 0;
+            });
+
+            $selesaiDibaca = $readingHistory->filter(function($item) {
+                // Selesai dibaca: progres 100% ATAU sudah ditandai selesai
+                return $item->progress_percentage >= 100 || $item->is_completed_for_points == 1;
+            });
+
+            $data['sedangMembaca'] = $sedangMembaca;
+            $data['selesaiDibaca'] = $selesaiDibaca;
+        }
+        else if ($section === 'bookmark') {
+            $bookmarkedBooks = DB::table('bookmarks')
+                                ->where('user_id', $user->id)
+                                ->join('book_list', 'bookmarks.book_id', '=', 'book_list.id')
+                                ->select(
+                                    'book_list.id',
+                                    'book_list.judul',
+                                    'book_list.author',
+                                    'book_list.tahun',
+                                    'book_list.genre',
+                                    'book_list.cover_path',
+                                    'book_list.pdf_path'
+                                )
+                                ->orderBy('bookmarks.created_at', 'desc') // Urutkan berdasarkan waktu bookmark
+                                ->get();
+            $data['bookmarkedBooks'] = $bookmarkedBooks;
         }
 
-        return view("profile.sections.{$section}", $data);
+        return view("profile.sections.{$section}", $data); 
     }
 
     /**

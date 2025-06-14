@@ -15,6 +15,8 @@ const config = {
     pdfWorkerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js',
     saveProgressEndpoint: '/api/reading-progress', // Laravel API endpoint untuk menyimpan progres
     getProgressEndpoint: '/api/reading-progress/status', // Laravel API endpoint untuk mendapatkan progres
+    toggleBookmarkEndpoint: '/api/bookmarks/toggle', 
+    checkBookmarkEndpoint: '/api/bookmarks/check/', 
     zoomStep: 0.05,
     maxZoom: 3,
     minZoom: 0.3,
@@ -30,6 +32,7 @@ let isLoggedIn = false;
 let lastSavedPage = 0; // Halaman terakhir yang berhasil disimpan ke backend
 let lastSavedPercentage = 0; // Persentase terakhir yang berhasil disimpan ke backend
 let progressSaveTimer = null; // Timer untuk menyimpan progres
+let isBookmarked = false;
 
 /**
  * Initialize DOM elements
@@ -53,6 +56,7 @@ function initializeElements() {
         isLoggedInInput: document.getElementById("isLoggedIn"),
         totalPagesInput: document.getElementById("totalPages"),
         userTotalPointsSpan: document.getElementById("userTotalPoints"), // Span untuk menampilkan total poin user
+        bookmarkBtn: document.getElementById("bookmarkBtn"),
     };
 
     // Menggunakan window.elements untuk mengakses properti objek
@@ -430,6 +434,112 @@ function startProgressSaveTimer() {
 }
 
 /**
+ * Handle bookmark button click.
+ */
+function handleBookmarkToggle() {
+    if (!isLoggedIn || !bookId) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Login Diperlukan',
+            text: 'Anda harus login untuk menandai buku favorit.',
+            confirmButtonText: 'Login Sekarang',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login';
+            }
+        });
+        return;
+    }
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch(config.toggleBookmarkEndpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify({ book_id: bookId }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            isBookmarked = data.is_bookmarked; // Perbarui status lokal
+            updateBookmarkButtonUI(); // Perbarui tampilan tombol
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'success',
+                title: data.message,
+            });
+        } else {
+            Swal.fire('Gagal!', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error bookmarking:', error);
+        Swal.fire('Error', 'Terjadi kesalahan saat mengubah status bookmark.', 'error');
+    });
+}
+
+/**
+ * Update the visual state of the bookmark button.
+ */
+function updateBookmarkButtonUI() {
+    if (window.elements.bookmarkBtn) {
+        const svgPath = window.elements.bookmarkBtn.querySelector('path');
+        if (isBookmarked) {
+            // Icon filled
+            window.elements.bookmarkBtn.classList.remove('text-gray-500');
+            window.elements.bookmarkBtn.classList.add('text-yellow-500'); // Atau warna lain untuk ter-bookmark
+            svgPath.setAttribute('fill', 'currentColor'); // Isi ikon
+        } else {
+            // Icon outlined
+            window.elements.bookmarkBtn.classList.remove('text-yellow-500');
+            window.elements.bookmarkBtn.classList.add('text-gray-500');
+            svgPath.setAttribute('fill', 'none'); // Hapus fill
+        }
+    }
+}
+
+/**
+ * Check initial bookmark status when page loads.
+ */
+function checkInitialBookmarkStatus() {
+    if (!isLoggedIn || !bookId) {
+        updateBookmarkButtonUI(); // Pastikan ikon default jika tidak login
+        return;
+    }
+
+    fetch(`${config.checkBookmarkEndpoint}${bookId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                isBookmarked = data.is_bookmarked;
+                updateBookmarkButtonUI();
+            } else {
+                console.error('Gagal memeriksa status bookmark:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error memeriksa status bookmark:', error);
+        });
+}
+
+/**
  * Add event listeners
  */
 function addEventListeners() {
@@ -453,6 +563,10 @@ function addEventListeners() {
 
     if (window.elements.resetZoomBtn) { // Menggunakan window.elements
         window.elements.resetZoomBtn.addEventListener("click", resetZoom);
+    }
+
+    if (window.elements.bookmarkBtn) {
+        window.elements.bookmarkBtn.addEventListener("click", handleBookmarkToggle);
     }
 
     // Window resize
@@ -534,6 +648,8 @@ function initialize() {
     // Load PDF after a short delay to ensure everything is ready
     setTimeout(() => {
         loadPDF();
+        // **PERIKSA STATUS BOOKMARK AWAL SETELAH PDF DIMUAT**
+        checkInitialBookmarkStatus(); 
     }, 100);
 }
 

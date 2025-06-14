@@ -582,6 +582,11 @@ function loadContent(page, el = null) {
             } else if (page === 'point') { // **TAMBAHKAN INI**
                 initializePointSection();
             }
+            else if (page === 'riwayat-membaca') { // **TAMBAHKAN INI**
+            // Tidak ada JS khusus yang diperlukan untuk ini saat ini,
+            // tetapi jika nanti ada tab atau filter, inisialisasi akan masuk di sini.
+            console.log('Riwayat Membaca section loaded.');
+            }
             // Tambahkan inisialisasi untuk section lain di sini jika diperlukan
         })
         .catch(async error => {

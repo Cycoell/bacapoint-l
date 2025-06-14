@@ -38,6 +38,15 @@
             </div>
 
             <div class="flex items-center space-x-2 flex-1 justify-end">
+                {{-- **TAMBAHKAN TOMBOL BOOKMARK INI** --}}
+                @if($user ?? false) {{-- Hanya tampilkan jika user login --}}
+                    <button id="bookmarkBtn" class="p-2 rounded-full hover:bg-gray-100 transition-colors" title="Bookmark Buku">
+                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                        </svg>
+                    </button>
+                @endif
+
                 <div class="flex items-center border rounded px-2 py-1">
                     <button id="zoomOutBtn" class="px-2 py-1 hover:bg-gray-100 transition-colors">−</button>
                     <span id="zoomLevel" class="px-2 min-w-[50px] text-center">100%</span>
@@ -71,20 +80,12 @@
                 Selanjutnya
             </button>
 
-            {{-- Menampilkan Total Poin Pengguna di Footer (opsional) --}}
             @if ($user ?? false)
                 <div class="absolute right-5 flex items-center gap-2 text-green-700 font-semibold">
                     <img src="{{ asset('assets/icon_coin.png') }}" alt="Point Icon" class="w-5 h-5">
                     <span id="userTotalPoints" data-user-points="{{ $user->poin ?? 0 }}">{{ $user->poin ?? 0 }}</span> Poin
                 </div>
             @endif
-
-            {{-- Tombol "Selesai Membaca" dihapus karena diganti progres --}}
-            {{-- @if (($canEarnPoints ?? false) && ($user ?? false))
-                <button id="finishReading" class="bottom-[10] right-5 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg absolute hover:bg-green-700 transition-colors">
-                    Selesai Membaca
-                </button>
-            @endif --}}
         </footer>
     </div>
 
@@ -96,10 +97,8 @@
         <input type="hidden" id="userId" value="">
     @endif
 
-    {{-- canEarnPoints dan isLoggedIn tidak lagi relevan secara langsung untuk tombol, 
-        tapi tetap untuk logika di JS --}}
     <input type="hidden" id="isLoggedIn" value="{{ ($isLoggedIn ?? false) ? 'true' : 'false' }}">
-    <input type="hidden" id="totalPages" value="{{ e($totalPages ?? 1) }}"> {{-- Pass total pages --}}
+    <input type="hidden" id="totalPages" value="{{ e($totalPages ?? 1) }}">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     

@@ -7,7 +7,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\BookSearchController;
-use App\Http\Controllers\BookController; // **TAMBAHKAN INI**
+use App\Http\Controllers\BookController; 
+use App\Http\Controllers\BookmarkController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -46,6 +47,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/books/create', [BookController::class, 'create'])->name('admin.books.create');
         Route::post('/admin/books', [BookController::class, 'store'])->name('admin.books.store');
     });
+
+    // **RUTE BARU UNTUK BOOKMARK**
+    Route::post('/api/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('api.bookmarks.toggle');
+    Route::get('/api/bookmarks/check/{book_id}', [BookmarkController::class, 'check'])->name('api.bookmarks.check');
 });
 
 // Anda perlu mendefinisikan Gate 'admin' di AuthServiceProvider atau di tempat lain
