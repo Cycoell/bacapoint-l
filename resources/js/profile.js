@@ -191,6 +191,35 @@ window.hideConfirmModal = function() {
     }
 };
 
+// ** --- FUNGSI GLOBAL UNTUK TAB POIN --- **
+
+// Fungsi untuk beralih antara tab riwayat poin
+window.switchPointTab = function(tabId) {
+    // Hapus kelas 'active' dari semua tombol tab
+    document.querySelectorAll('.tab-point').forEach(button => {
+        button.classList.remove('tab-point-active'); // Hapus kelas active custom
+    });
+
+    // Sembunyikan semua konten tab
+    document.querySelectorAll('.tab-content-point').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    // Tambahkan kelas 'active' ke tombol yang diklik
+    const activeButton = document.getElementById(`tab-${tabId}`);
+    if (activeButton) {
+        activeButton.classList.add('tab-point-active'); // Tambahkan kelas active custom
+    }
+
+    // Tampilkan konten tab yang sesuai
+    const activeContent = document.getElementById(`content-${tabId}`);
+    if (activeContent) {
+        activeContent.classList.remove('hidden');
+    }
+    // Implementasi AJAX untuk memuat data tab bisa ditambahkan di sini nanti
+    // Contoh: loadPointTabContent(tabId);
+};
+
 
 // ** --- FUNGSI INISIALISASI LISTENER UNTUK SECTION DINAMIS --- **
 
@@ -493,6 +522,72 @@ window.initializeGrafikSection = function() { // Pastikan fungsi ini global
     });
 }
 
+// **TAMBAHKAN FUNGSI INISIALISASI INI UNTUK SECTION 'POINT'**
+function initializePointSection() {
+    // Panggil fungsi switchPointTab untuk menampilkan tab default saat section dimuat
+    // Kita bisa tambahkan kelas 'tab-point-active' ke tab 'all' secara default di HTML
+    const defaultTab = document.getElementById('tab-all');
+    if (defaultTab) {
+        defaultTab.classList.add('tab-point-active');
+        document.getElementById('content-all').classList.remove('hidden');
+    }
+
+    // Event listener untuk tombol tab point (opsional jika onclick langsung di HTML sudah cukup)
+    // document.querySelectorAll('.tab-point').forEach(button => {
+    //     button.addEventListener('click', function() {
+    //         switchPointTab(this.id.replace('tab-', ''));
+    //     });
+    // });
+}
+
+// **PERBARUI FUNGSI loadContent UNTUK MEMANGGIL initializePointSection**
+function loadContent(page, el = null) {
+    showLoading();
+
+    fetch(`/profile/${page}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error("Halaman tidak ditemukan");
+                }
+                throw new Error("Gagal memuat konten");
+            }
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('main-content').innerHTML = html;
+
+            // Hapus class active dari semua tombol sidebar
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('border-l-4', 'border-green-500', 'bg-green-100', 'font-semibold', 'text-green-700');
+                btn.classList.add('text-gray-800', 'hover:font-semibold');
+            });
+
+            // Tambahkan class active ke tombol sidebar yang diklik
+            if (el) {
+                el.classList.add('border-l-4', 'border-green-500', 'bg-green-100', 'font-semibold', 'text-green-700');
+                el.classList.remove('text-gray-800');
+            }
+
+            // Simpan ke sessionStorage
+            sessionStorage.setItem('currentPage', page);
+
+            // Inisialisasi listener/fungsi spesifik untuk section
+            if (page === 'account') {
+                initializeAccountSectionListeners();
+            } else if (page === 'collection') {
+                initializeCollectionSectionListeners();
+            } else if (page === 'grafik') {
+                initializeGrafikSection();
+            } else if (page === 'point') { // **TAMBAHKAN INI**
+                initializePointSection();
+            }
+            // Tambahkan inisialisasi untuk section lain di sini jika diperlukan
+        })
+        .catch(async error => {
+            // ... (kode penanganan error loadContent yang sudah ada) ...
+        });
+}
 
 // ** --- INISIALISASI SAAT DOM LENGKAP --- **
 
