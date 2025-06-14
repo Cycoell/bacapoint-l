@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use App\Models\User; // Pastikan ini diimpor dengan benar
 
 class ProfileController extends Controller
@@ -34,7 +35,30 @@ class ProfileController extends Controller
             abort(404);
         }
 
-        return view("profile.sections.{$section}", compact('user'));
+        $data = compact('user'); // Data dasar untuk view
+
+        // **TAMBAHKAN LOGIKA INI UNTUK SECTION 'COLLECTION'**
+        if ($section === 'collection' && $user->role === 'admin') {
+            $books = DB::table('book_list')->orderBy('judul', 'asc')->get();
+            $data['books'] = $books; // Masukkan data buku ke array $data
+        }
+
+        else if ($section === 'grafik' && $user->role === 'admin') {
+            $genreData = DB::table('book_list')
+                            ->select(DB::raw('genre, count(*) as total_books'))
+                            ->groupBy('genre')
+                            ->whereNotNull('genre') // Hanya hitung genre yang tidak null
+                            ->orderBy('total_books', 'desc')
+                            ->get();
+
+            $labels = $genreData->pluck('genre')->toArray();
+            $counts = $genreData->pluck('total_books')->toArray();
+
+            $data['genreLabels'] = json_encode($labels); // Encode ke JSON untuk JavaScript
+            $data['genreCounts'] = json_encode($counts); // Encode ke JSON untuk JavaScript
+        }
+
+        return view("profile.sections.{$section}", $data);
     }
 
     /**

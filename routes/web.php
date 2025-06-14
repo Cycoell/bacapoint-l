@@ -5,8 +5,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ReadingController; // Pastikan ini ada
+use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\BookSearchController;
+use App\Http\Controllers\BookController; // **TAMBAHKAN INI**
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -34,11 +35,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/reading-auth/{id}', [ReadingController::class, 'showReading'])->name('reading');
     Route::get('/reading-auth', [ReadingController::class, 'showReadingFromQuery'])->name('reading.query');
     
-    // Rute API baru untuk update progres bacaan
+    // Rute API untuk update progres bacaan
     Route::post('/api/reading-progress', [ReadingController::class, 'saveProgress'])->name('api.reading.progress');
-    // Rute API baru untuk mendapatkan progres bacaan (yang menyebabkan 404)
+    // Rute API untuk mendapatkan progres bacaan
     Route::get('/api/reading-progress/status', [ReadingController::class, 'getProgressStatus'])->name('api.reading.progress.status');
+
+    // **RUTE BARU UNTUK ADMIN BOOK MANAGEMENT (TAMBAHKAN INI)**
+    // Pastikan hanya admin yang bisa mengakses
+    Route::middleware('can:admin')->group(function () { // Menggunakan gate 'admin'
+        Route::get('/admin/books/create', [BookController::class, 'create'])->name('admin.books.create');
+        Route::post('/admin/books', [BookController::class, 'store'])->name('admin.books.store');
+    });
 });
+
+// Anda perlu mendefinisikan Gate 'admin' di AuthServiceProvider atau di tempat lain
+// Untuk saat ini, kita bisa menggunakan middleware kustom sederhana jika gate belum didefinisikan.
+// Jika Anda ingin menggunakan middleware, ini contohnya (bisa kita buat nanti jika perlu):
+// Route::middleware(['auth', 'admin'])->group(function () { ... });
 
 
 // Tanpa login (bisa akses buku 1–4 saja)
@@ -50,6 +63,6 @@ Route::get('/api/search', [BookSearchController::class, 'search'])->name('books.
 Route::get('/api/books/genre', [BookSearchController::class, 'getBooksByGenre'])->name('books.genre');
 Route::get('/api/books/random-titles', [BookSearchController::class, 'getRandomBookTitles'])->name('books.random.titles');
 
-// API routes untuk reading functionality (ROUTES YANG MUNGKIN DIBUTUHKAN)
+// API routes untuk reading functionality
 Route::get('/api/books/{id}', [ReadingController::class, 'getBookData'])->name('api.books.show');
 Route::get('/api/books/{bookId}/chapters', [ReadingController::class, 'getChapterContent'])->name('api.books.chapters');
