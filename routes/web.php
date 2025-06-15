@@ -41,11 +41,14 @@ Route::middleware('auth')->group(function () {
     // Rute API untuk mendapatkan progres bacaan
     Route::get('/api/reading-progress/status', [ReadingController::class, 'getProgressStatus'])->name('api.reading.progress.status');
 
-    // **RUTE BARU UNTUK ADMIN BOOK MANAGEMENT (TAMBAHKAN INI)**
-    // Pastikan hanya admin yang bisa mengakses
-    Route::middleware('can:admin')->group(function () { // Menggunakan gate 'admin'
-        Route::get('/admin/books/create', [BookController::class, 'create'])->name('admin.books.create');
-        Route::post('/admin/books', [BookController::class, 'store'])->name('admin.books.store');
+    // Admin Book Management Routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/books/create', [BookController::class, 'create'])
+            ->middleware(['auth', 'admin'])
+            ->name('admin.books.create');
+        Route::post('/books', [BookController::class, 'store'])
+            ->middleware(['auth', 'admin'])
+            ->name('admin.books.store');
     });
 
     // **RUTE BARU UNTUK BOOKMARK**

@@ -40,6 +40,8 @@
         </div>
       </div>
     </section>
+
+    {{-- Section Bar point --}}
     <section class="my-8">
       <div class="container mx-auto max-w-4xl px-6 py-5 bg-white rounded-xl shadow-xl border border-gray-200 flex items-center gap-6 min-h-16">
 
@@ -73,6 +75,8 @@
 
       </div>
     </section>
+
+    {{-- Sectionn 2: Book --}}
     <section class="my-8">
         <div class="container mx-auto max-w-4xl px-6 py-6 bg-white rounded-xl shadow-xl border border-gray-200">
           <div class="flex justify-end mb-5">
@@ -110,6 +114,8 @@
         </div>
       </section>
 
+
+      {{-- Section 3: Recommended Books --}}
       <section class="my-8">
       <div class="container mx-auto max-w-4xl bg-gradient-to-br from-emerald-200 to-green-300 px-8 py-8 rounded-3xl shadow-2xl border border-blue-200 transform transition-all duration-300 hover:shadow-xl"> {{-- Ubah gradasi warna, padding lebih besar, rounded lebih, shadow lebih kuat, border --}}
         
