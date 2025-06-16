@@ -1,7 +1,8 @@
 <div class="p-6 bg-white rounded-lg shadow-lg border border-gray-100">
     <div class="flex items-center justify-between mb-6 border-b pb-3 border-gray-200">
         <h2 class="text-2xl font-bold text-gray-800">Point Saya</h2>
-        <a href="#" class="text-green-600 font-semibold hover:text-green-700 transition-colors flex items-center gap-1">
+        {{-- Ubah href dari "#" ke route('all.books') --}}
+        <a href="{{ route('all.books') }}" class="text-green-600 font-semibold hover:text-green-700 transition-colors flex items-center gap-1">
             Dapatkan koin <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </a>
     </div>
@@ -48,7 +49,7 @@
                     <span class="text-gray-500 text-xs">{{ \Carbon\Carbon::now()->subDays(2)->locale('id')->diffForHumans() }}</span>
                 </li>
                 <li class="bg-gray-50 p-3 rounded-lg flex justify-between items-center text-sm">
-                    <span>+5 Poin dari Selesaikan Survei</span>
+                    <span>+5 Poin dari Selesai Survei</span>
                     <span class="text-gray-500 text-xs">{{ \Carbon\Carbon::now()->subDays(5)->locale('id')->diffForHumans() }}</span>
                 </li>
             </ul>

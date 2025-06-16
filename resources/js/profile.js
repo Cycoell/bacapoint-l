@@ -78,6 +78,7 @@ window.loadContent = function(page, el = null) {
                     throw new Error("Halaman tidak ditemukan");
                 }
                 throw new Error("Gagal memuat konten");
+                //
             }
             return response.text();
         })
@@ -104,23 +105,27 @@ window.loadContent = function(page, el = null) {
                 initializeAccountSectionListeners();
             } else if (page === 'collection') {
                 initializeCollectionSectionListeners(); // Memastikan listener untuk collection dimuat
-            } else if (page === 'grafik') { 
+            } else if (page === 'grafik') {
                 initializeGrafikSection(); // Memastikan listener untuk grafik dimuat
             }
             // Tambahkan inisialisasi untuk section lain di sini jika diperlukan
+            else if (page === 'point') {
+                initializePointSection();
+            }
+            else if (page === 'riwayat-membaca') {
+            console.log('Riwayat Membaca section loaded.');
+            }
         })
         .catch(async error => {
-            let errorMessage = error.message;
-            try {
-                const response = await fetch(`/profile/${sessionStorage.getItem('currentPage')}`);
-                if (!response.ok) {
-                    const text = await response.text();
-                    errorMessage += ` - Server response: ${response.status} ${response.statusText} - ${text}`;
-                }
-            } catch (e) {
-                errorMessage += ` - Additional fetch error: ${e.message}`;
+            console.error('Error loading content:', error);
+            let errorMessage = "Terjadi kesalahan saat memuat konten.";
+            if (error.message.includes('Halaman tidak ditemukan')) {
+                errorMessage = "Halaman tidak ditemukan.";
+            } else if (error.message.includes('HTTP error!')) {
+                errorMessage = `Gagal memuat konten: ${error.message}`;
             }
-            showError(errorMessage);
+            Swal.fire('Error', errorMessage, 'error');
+            document.getElementById('main-content').innerHTML = `<p class="text-red-500 text-center">${errorMessage}</p>`;
         });
 };
 
@@ -153,7 +158,7 @@ window.showChangePasswordModal = function() {
     }
 };
 
-// Fungsi untuk menampilkan modal Tambah Buku Baru (global agar bisa dipanggil dari onclick)
+// Fungsi untuk menampilkan modal Tambah/Edit Buku Baru (global agar bisa dipanggil dari onclick)
 window.showAddBookModal = function() {
     const addBookModal = document.getElementById('addBookModal');
     if (addBookModal) {
@@ -162,7 +167,7 @@ window.showAddBookModal = function() {
     }
 };
 
-// Fungsi untuk menyembunyikan modal Tambah Buku Baru (global agar bisa dipanggil dari onclick)
+// Fungsi untuk menyembunyikan modal Tambah/Edit Buku Baru (global agar bisa dipanggil dari onclick)
 window.hideAddBookModal = function() {
     const addBookModal = document.getElementById('addBookModal');
     if (addBookModal) {
@@ -170,58 +175,165 @@ window.hideAddBookModal = function() {
         addBookModal.classList.remove('flex');
         document.getElementById('addBookForm').reset();
         clearFormErrors('addBookForm');
+
+        // Reset form ke mode "Tambah Buku Baru" default
+        document.getElementById('addBookFormMethod').value = 'POST';
+        document.getElementById('editBookId').value = '';
+        document.getElementById('addBookModalTitle').textContent = 'Tambah Buku Baru';
+        document.getElementById('cover_file').required = true;
+        document.getElementById('pdf_file').required = true;
+        document.getElementById('currentCoverInfo').textContent = '';
+        document.getElementById('currentPdfInfo').textContent = '';
     }
 };
 
 // Fungsi untuk menampilkan modal konfirmasi (confirmModal) (global agar bisa dipanggil dari onclick)
-window.showConfirmModal = function() {
+window.showConfirmModal = function(bookIdToDelete) { // Terima bookIdToDelete
     const confirmModal = document.getElementById('confirmModal');
-    if (confirmModal) {
+    const confirmYesBtn = document.getElementById('confirmYes');
+
+    if (confirmModal && confirmYesBtn) {
         confirmModal.classList.remove('hidden');
         confirmModal.classList.add('flex');
+        // Set data-book-id pada tombol Yes untuk digunakan saat konfirmasi
+        confirmYesBtn.dataset.bookId = bookIdToDelete;
     }
 };
 
 // Fungsi untuk menyembunyikan modal konfirmasi (confirmModal) (global agar bisa dipanggil dari onclick)
 window.hideConfirmModal = function() {
     const confirmModal = document.getElementById('confirmModal');
+    const confirmYesBtn = document.getElementById('confirmYes');
     if (confirmModal) {
         confirmModal.classList.add('hidden');
         confirmModal.classList.remove('flex');
+        // Hapus data-book-id setelah modal disembunyikan
+        if (confirmYesBtn) {
+            delete confirmYesBtn.dataset.bookId;
+        }
     }
 };
 
-// ** --- FUNGSI GLOBAL UNTUK TAB POIN --- **
-
-// Fungsi untuk beralih antara tab riwayat poin
-window.switchPointTab = function(tabId) {
-    // Hapus kelas 'active' dari semua tombol tab
-    document.querySelectorAll('.tab-point').forEach(button => {
-        button.classList.remove('tab-point-active'); // Hapus kelas active custom
+// FUNGSI UNTUK KONFIRMASI HAPUS
+window.confirmDelete = function(bookId) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Anda tidak akan dapat mengembalikan ini!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteBook(bookId); // Panggil fungsi deleteBook jika dikonfirmasi
+        }
     });
-
-    // Sembunyikan semua konten tab
-    document.querySelectorAll('.tab-content-point').forEach(content => {
-        content.classList.add('hidden');
-    });
-
-    // Tambahkan kelas 'active' ke tombol yang diklik
-    const activeButton = document.getElementById(`tab-${tabId}`);
-    if (activeButton) {
-        activeButton.classList.add('tab-point-active'); // Tambahkan kelas active custom
-    }
-
-    // Tampilkan konten tab yang sesuai
-    const activeContent = document.getElementById(`content-${tabId}`);
-    if (activeContent) {
-        activeContent.classList.remove('hidden');
-    }
-    // Implementasi AJAX untuk memuat data tab bisa ditambahkan di sini nanti
-    // Contoh: loadPointTabContent(tabId);
 };
 
+// FUNGSI UNTUK HAPUS BUKU VIA AJAX
+function deleteBook(bookId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-// ** --- FUNGSI INISIALISASI LISTENER UNTUK SECTION DINAMIS --- **
+    Swal.fire({
+        title: 'Menghapus buku...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    fetch(`/admin/books/${bookId}`, { // Sesuaikan dengan rute API delete Anda
+        method: 'DELETE', // Menggunakan metode DELETE
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            Swal.fire(
+                'Terhapus!',
+                data.message,
+                'success'
+            );
+            // Muat ulang section 'collection' untuk memperbarui tabel
+            window.loadContent('collection', document.getElementById('btn-collection'));
+        } else {
+            Swal.fire(
+                'Gagal!',
+                data.message,
+                'error'
+            );
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire(
+            'Error',
+            'Terjadi kesalahan saat menghapus buku: ' + error.message,
+            'error'
+        );
+    });
+}
+
+
+// FUNGSI BARU UNTUK EDIT BUKU (MENAMPILKAN MODAL DAN MENGISI DATA)
+window.editBook = function(bookId) {
+    // Dapatkan baris buku dari tabel yang sedang aktif menggunakan ID unik di TR
+    const bookRow = document.getElementById(`book-row-${bookId}`); // Menggunakan ID pada TR
+
+    if (!bookRow) {
+        console.error('Book row not found for ID:', bookId);
+        Swal.fire('Error', 'Data buku tidak ditemukan di tabel.', 'error');
+        return;
+    }
+
+    // Ambil data dari sel tabel. Sesuaikan indeks kolom jika struktur tabel berubah.
+    const bookData = {
+        id: bookId,
+        judul: bookRow.children[1].textContent.trim(),
+        author: bookRow.children[2].textContent.trim(),
+        genre: bookRow.children[3].textContent.trim() === '-' ? '' : bookRow.children[3].textContent.trim(),
+        total_pages: bookRow.children[4].textContent.trim(),
+        point_value: bookRow.children[5].textContent.trim()
+    };
+
+    // Set modal ke mode "Edit"
+    document.getElementById('addBookModalTitle').textContent = 'Edit Buku';
+    document.getElementById('addBookFormMethod').value = 'PUT'; // Set method ke PUT
+    document.getElementById('editBookId').value = bookId; // Simpan ID buku yang sedang diedit
+
+    // Isi form dengan data buku
+    document.getElementById('judul').value = bookData.judul;
+    document.getElementById('author').value = bookData.author;
+    // Kolom 'tahun' tidak ada di tabel, jadi tidak bisa langsung diambil dari children.
+    // Jika perlu diisi, Anda harus mengambilnya dari data-attribute di TR, atau melalui AJAX fetch.
+    document.getElementById('tahun').value = ''; // Biarkan kosong atau atur nilai default jika tidak ada di tabel
+    document.getElementById('genre').value = bookData.genre;
+    document.getElementById('point_value').value = bookData.point_value;
+
+    // Untuk input file: kosongkan nilai dan berikan pesan bahwa bisa dikosongkan untuk mempertahankan yang lama.
+    document.getElementById('cover_file').value = '';
+    document.getElementById('pdf_file').value = '';
+    document.getElementById('cover_file').required = false; // Tidak lagi wajib untuk edit
+    document.getElementById('pdf_file').required = false; // Tidak lagi wajib untuk edit
+    document.getElementById('currentCoverInfo').textContent = 'Biarkan kosong untuk mempertahankan cover lama.';
+    document.getElementById('currentPdfInfo').textContent = 'Biarkan kosong untuk mempertahankan file PDF lama.';
+
+    // Tampilkan modal
+    showAddBookModal();
+};
+
 
 // Fungsi untuk menginisialisasi event listener setelah section 'account' dimuat
 function initializeAccountSectionListeners() {
@@ -368,17 +480,22 @@ function initializeCollectionSectionListeners() {
 
             const form = e.target;
             const formData = new FormData(form);
+            const bookId = document.getElementById('editBookId').value;
+            const isEdit = bookId !== '';
 
             Swal.fire({
-                title: 'Menyimpan Buku...',
+                title: isEdit ? 'Memperbarui Buku...' : 'Menyimpan Buku...',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
 
-            fetch(form.action, {
-                method: 'POST',
+            // Pastikan URL action sesuai dengan mode (add/edit)
+            const actionUrl = isEdit ? `/admin/books/${bookId}` : form.action;
+
+            fetch(actionUrl, {
+                method: 'POST', // Method akan jadi POST, _method akan menangani PUT
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
@@ -402,7 +519,8 @@ function initializeCollectionSectionListeners() {
                 if (data.success) {
                     Swal.fire('Sukses!', data.message, 'success');
                     hideAddBookModal();
-                    // TODO: Refresh daftar buku di tabel (akan diimplementasikan nanti)
+                    // Muat ulang section 'collection' untuk memperbarui tabel
+                    window.loadContent('collection', document.getElementById('btn-collection'));
                 } else {
                     Swal.fire('Gagal!', data.message, 'error');
                 }
@@ -410,7 +528,7 @@ function initializeCollectionSectionListeners() {
             .catch(error => {
                 console.error('Error:', error);
                 if (error.message !== 'Validation Failed') {
-                    Swal.fire('Error', 'Terjadi kesalahan saat menambahkan buku.', 'error');
+                    Swal.fire('Error', 'Terjadi kesalahan saat menyimpan buku.', 'error');
                 }
             });
         });
@@ -432,46 +550,46 @@ window.initializeGrafikSection = function() { // Pastikan fungsi ini global
 
     // Menggunakan variabel lokal yang dideklarasikan di sini.
     // Variabel ini akan diinisialisasi dalam scope fungsi ini.
-    let labels = []; 
+    let labels = [];
     let counts = [];
 
     if (genreLabelsElement && genreCountsElement) {
         try {
-            labels = JSON.parse(genreLabelsElement.textContent || '[]'); 
-            counts = JSON.parse(genreCountsElement.textContent || '[]'); 
+            labels = JSON.parse(genreLabelsElement.textContent || '[]');
+            counts = JSON.parse(genreCountsElement.textContent || '[]');
         } catch (e) {
             console.error("Error parsing genre data:", e);
-            labels = ['Tidak ada data']; 
-            counts = [0]; 
+            labels = ['Tidak ada data'];
+            counts = [0];
         }
     } else {
         // Fallback jika elemen tidak ditemukan (misal, tidak ada data genre)
         labels = ['Tidak ada data'];
         counts = [0];
     }
-    
+
     // Hancurkan instance Chart sebelumnya jika ada
     if (window.genreChartInstance) {
         window.genreChartInstance.destroy();
     }
 
     // console.log untuk debugging, pastikan berada setelah 'labels' dan 'counts' diisi
-    console.log("Data for chart:", { labels: labels, counts: counts }); 
+    console.log("Data for chart:", { labels: labels, counts: counts });
 
-    window.genreChartInstance = new Chart(ctx, { 
+    window.genreChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: labels, 
+            labels: labels,
             datasets: [{
                 label: 'Jumlah Buku per Genre',
-                data: counts, 
+                data: counts,
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.6)', 
-                    'rgba(255, 99, 132, 0.6)', 
-                    'rgba(255, 206, 86, 0.6)', 
-                    'rgba(75, 192, 192, 0.6)', 
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
                     'rgba(153, 102, 255, 0.6)',
-                    'rgba(255, 159, 64, 0.6)'  
+                    'rgba(255, 159, 64, 0.6)'
                 ],
                 borderColor: [
                     'rgba(54, 162, 235, 1)',
@@ -491,7 +609,7 @@ window.initializeGrafikSection = function() { // Pastikan fungsi ini global
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 1, 
+                        stepSize: 1,
                         callback: function(value) {if (value % 1 === 0) {return value;}}
                     }
                 },
@@ -522,103 +640,33 @@ window.initializeGrafikSection = function() { // Pastikan fungsi ini global
     });
 }
 
-// **TAMBAHKAN FUNGSI INISIALISASI INI UNTUK SECTION 'POINT'**
+// FUNGSI INISIALISASI UNTUK SECTION 'POINT'
 function initializePointSection() {
-    // Panggil fungsi switchPointTab untuk menampilkan tab default saat section dimuat
-    // Kita bisa tambahkan kelas 'tab-point-active' ke tab 'all' secara default di HTML
     const defaultTab = document.getElementById('tab-all');
     if (defaultTab) {
         defaultTab.classList.add('tab-point-active');
         document.getElementById('content-all').classList.remove('hidden');
     }
-
-    // Event listener untuk tombol tab point (opsional jika onclick langsung di HTML sudah cukup)
-    // document.querySelectorAll('.tab-point').forEach(button => {
-    //     button.addEventListener('click', function() {
-    //         switchPointTab(this.id.replace('tab-', ''));
-    //     });
-    // });
 }
 
-// **PERBARUI FUNGSI loadContent UNTUK MEMANGGIL initializePointSection**
-function loadContent(page, el = null) {
-    showLoading();
-
-    fetch(`/profile/${page}`)
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error("Halaman tidak ditemukan");
-                }
-                throw new Error("Gagal memuat konten");
-            }
-            return response.text();
-        })
-        .then(html => {
-            document.getElementById('main-content').innerHTML = html;
-
-            // Hapus class active dari semua tombol sidebar
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('border-l-4', 'border-green-500', 'bg-green-100', 'font-semibold', 'text-green-700');
-                btn.classList.add('text-gray-800', 'hover:font-semibold');
-            });
-
-            // Tambahkan class active ke tombol sidebar yang diklik
-            if (el) {
-                el.classList.add('border-l-4', 'border-green-500', 'bg-green-100', 'font-semibold', 'text-green-700');
-                el.classList.remove('text-gray-800');
-            }
-
-            // Simpan ke sessionStorage
-            sessionStorage.setItem('currentPage', page);
-
-            // Inisialisasi listener/fungsi spesifik untuk section
-            if (page === 'account') {
-                initializeAccountSectionListeners();
-            } else if (page === 'collection') {
-                initializeCollectionSectionListeners();
-            } else if (page === 'grafik') {
-                initializeGrafikSection();
-            } else if (page === 'point') { // **TAMBAHKAN INI**
-                initializePointSection();
-            }
-            else if (page === 'riwayat-membaca') { // **TAMBAHKAN INI**
-            // Tidak ada JS khusus yang diperlukan untuk ini saat ini,
-            // tetapi jika nanti ada tab atau filter, inisialisasi akan masuk di sini.
-            console.log('Riwayat Membaca section loaded.');
-            }
-            // Tambahkan inisialisasi untuk section lain di sini jika diperlukan
-        })
-        .catch(async error => {
-            // ... (kode penanganan error loadContent yang sudah ada) ...
-        });
-}
-
-// ** --- INISIALISASI SAAT DOM LENGKAP --- **
-
-// Saat halaman pertama kali dibuka, langsung tampilkan "Profile"
+// INISIALISASI SAAT DOM LENGKAP
 document.addEventListener('DOMContentLoaded', function () {
     const current = sessionStorage.getItem('currentPage') || 'account';
     const activeBtn = document.getElementById(`btn-${current}`);
-    window.loadContent(current, activeBtn); // Menggunakan window.loadContent
+    window.loadContent(current, activeBtn);
 
-    // Event listener untuk tombol Yes/No di confirmModal (karena confirmModal ada di layout utama)
     const confirmYesBtn = document.getElementById('confirmYes');
     const confirmNoBtn = document.getElementById('confirmNo');
 
     if (confirmYesBtn) {
         confirmYesBtn.addEventListener('click', function() {
-            console.log('Konfirmasi Ya diklik');
-            // Logika ketika 'Ya' diklik - Anda akan memanggil fungsi untuk menghapus di sini
-            // Misalnya: deleteBookAction(); // Panggil fungsi penghapusan buku
-            window.hideConfirmModal(); // Sembunyikan modal setelah aksi
         });
     }
 
     if (confirmNoBtn) {
         confirmNoBtn.addEventListener('click', function() {
             console.log('Konfirmasi Batal diklik');
-            window.hideConfirmModal(); // Sembunyikan modal
+            window.hideConfirmModal();
         });
     }
 });

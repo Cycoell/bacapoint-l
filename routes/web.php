@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\BookSearchController;
-use App\Http\Controllers\BookController; 
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\BookmarkController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     // Pakai login (akses semua buku)
     Route::get('/reading-auth/{id}', [ReadingController::class, 'showReading'])->name('reading');
     Route::get('/reading-auth', [ReadingController::class, 'showReadingFromQuery'])->name('reading.query');
-    
+
     // Rute API untuk update progres bacaan
     Route::post('/api/reading-progress', [ReadingController::class, 'saveProgress'])->name('api.reading.progress');
     // Rute API untuk mendapatkan progres bacaan
@@ -47,23 +47,27 @@ Route::middleware('auth')->group(function () {
         Route::get('/books/create', function () {
             return redirect()->route('profile.section', ['section' => 'collection']);
         })->middleware(['auth', 'admin'])->name('admin.books.create');
-        
+
         // Rute untuk menyimpan buku (tetap ada karena modal memposting ke sini)
         Route::post('/books', [BookController::class, 'store'])
             ->middleware(['auth', 'admin'])
             ->name('admin.books.store');
+
+        // Rute untuk menghapus buku
+        Route::delete('/books/{id}', [BookController::class, 'destroy'])
+            ->middleware(['auth', 'admin'])
+            ->name('admin.books.destroy');
+
+        // Rute untuk memperbarui buku
+        Route::put('/books/{id}', [BookController::class, 'update'])
+            ->middleware(['auth', 'admin'])
+            ->name('admin.books.update');
     });
 
-    // **RUTE BARU UNTUK BOOKMARK**
+    // Rute untuk Bookmark
     Route::post('/api/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('api.bookmarks.toggle');
     Route::get('/api/bookmarks/check/{book_id}', [BookmarkController::class, 'check'])->name('api.bookmarks.check');
 });
-
-// Anda perlu mendefinisikan Gate 'admin' di AuthServiceProvider atau di tempat lain
-// Untuk saat ini, kita bisa menggunakan middleware kustom sederhana jika gate belum didefinisikan.
-// Jika Anda ingin menggunakan middleware, ini contohnya (bisa kita buat nanti jika perlu):
-// Route::middleware(['auth', 'admin'])->group(function () { ... });
-
 
 // Tanpa login (bisa akses buku 1–4 saja)
 Route::get('/reading/{id}', [ReadingController::class, 'showReadingPublic'])->name('reading.public');
