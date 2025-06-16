@@ -19,7 +19,8 @@ class BookRepository
      * Simpan buku baru ke database
      * @throws \Exception jika terjadi error saat upload atau proses PDF
      */
-    public function store(array $data, UploadedFile $coverFile, UploadedFile $pdfFile): Book
+    // Tambahkan $totalPages sebagai parameter baru di sini
+    public function store(array $data, UploadedFile $coverFile, UploadedFile $pdfFile, int $totalPages): Book
     {
         // Upload files
         $coverFileName = null;
@@ -32,8 +33,9 @@ class BookRepository
             // Upload PDF
             $pdfFileName = $this->fileUploadService->uploadFile($pdfFile, 'pdfs');
             
-            // Hitung jumlah halaman PDF
-            $totalPages = $this->fileUploadService->countPdfPages('assets/buku/' . $pdfFileName);
+            // TIDAK PERLU lagi memanggil $this->fileUploadService->countPdfPages()
+            // karena totalPages sudah diterima sebagai parameter.
+            // $totalPages = $this->fileUploadService->countPdfPages('assets/buku/' . $pdfFileName); // HAPUS BARIS INI
 
             // Simpan ke database menggunakan Eloquent
             return Book::create([
@@ -43,7 +45,7 @@ class BookRepository
                 'genre' => $data['genre'],
                 'cover_path' => $coverFileName,
                 'pdf_path' => $pdfFileName,
-                'total_pages' => $totalPages,
+                'total_pages' => $totalPages, // GUNAKAN $totalPages DARI PARAMETER
                 'point_value' => $data['point_value']
             ]);
 

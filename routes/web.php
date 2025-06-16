@@ -43,9 +43,12 @@ Route::middleware('auth')->group(function () {
 
     // Admin Book Management Routes
     Route::prefix('admin')->group(function () {
-        Route::get('/books/create', [BookController::class, 'create'])
-            ->middleware(['auth', 'admin'])
-            ->name('admin.books.create');
+        // GANTI RUTE INI: Alihkan ke halaman profil admin (bagian collection)
+        Route::get('/books/create', function () {
+            return redirect()->route('profile.section', ['section' => 'collection']);
+        })->middleware(['auth', 'admin'])->name('admin.books.create');
+        
+        // Rute untuk menyimpan buku (tetap ada karena modal memposting ke sini)
         Route::post('/books', [BookController::class, 'store'])
             ->middleware(['auth', 'admin'])
             ->name('admin.books.store');

@@ -1,51 +1,48 @@
-<div>
-    <h2 class="text-2xl font-bold mb-4">Koleksi Buku (Admin)</h2>
-    <div class="bg-white rounded-lg shadow overflow-hidden p-6 border border-gray-100">
-        <div class="mb-4 flex justify-between items-center">
-            <p class="text-gray-600">Kelola koleksi buku yang tersedia di platform.</p>
-            <button onclick="showAddBookModal()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2 shadow-md">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                <span>Tambah Buku Baru</span>
-            </button>
-        </div>
+<div class="p-6 bg-white rounded-lg shadow-lg border border-gray-100">
+    <div class="mb-4 flex justify-between items-center">
+        <p class="text-gray-600">Kelola koleksi buku yang tersedia di platform.</p>
+        <button onclick="showAddBookModal()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2 shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            <span>Tambah Buku Baru</span>
+        </button>
+    </div>
 
-        {{-- INI ADALAH TABEL DINAMIS UNTUK MENAMPILKAN DATA BUKU DARI DATABASE --}}
-        <div class="overflow-x-auto mt-6 border border-gray-200 rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+    {{-- INI ADALAH TABEL DINAMIS UNTUK MENAMPILKAN DATA BUKU DARI DATABASE --}}
+    <div class="overflow-x-auto mt-6 border border-gray-200 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penulis</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poin</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @forelse($books as $book) {{-- Loop melalui data buku dari database --}}
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penulis</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poin</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $book->judul }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->author }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->genre ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->total_pages }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->point_value }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                            <button class="text-red-600 hover:text-red-900">Delete</button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($books as $book) {{-- Loop melalui data buku dari database --}}
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->id }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $book->judul }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->author }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->genre ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->total_pages }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $book->point_value }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                                <button class="text-red-600 hover:text-red-900">Delete</button>
-                            </td>
-                        </tr>
-                    @empty
-                        {{-- Ini adalah baris yang akan ditampilkan jika tidak ada buku di database --}}
-                        <tr>
-                            <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Belum ada buku dalam koleksi.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    {{-- Ini adalah baris yang akan ditampilkan jika tidak ada buku di database --}}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Belum ada buku dalam koleksi.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     
@@ -82,7 +79,14 @@
                             <input type="text" id="genre" name="genre" class="form-input" placeholder="Misal: Fiksi, Sejarah">
                             <div id="genre-error" class="text-red-500 text-xs mt-1"></div>
                         </div>
-                        <div class="md:col-span-2">
+                        {{-- TAMBAHKAN INPUT TOTAL PAGES DI SINI --}}
+                        <div>
+                            <label for="total_pages" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Halaman</label>
+                            <input type="number" id="total_pages" name="total_pages" class="form-input" placeholder="Masukkan jumlah halaman" required min="1">
+                            <div id="total_pages-error" class="text-red-500 text-xs mt-1"></div>
+                        </div>
+                        {{-- END TAMBAH INPUT TOTAL PAGES --}}
+                        <div class="md:col-span-1">
                             <label for="point_value" class="block text-sm font-medium text-gray-700 mb-1">Nilai Poin (saat selesai)</label>
                             <input type="number" id="point_value" name="point_value" class="form-input" placeholder="Misal: 50" required min="1">
                             <div id="point_value-error" class="text-red-500 text-xs mt-1"></div>
