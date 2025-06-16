@@ -18,7 +18,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poin</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-4 whitespace-nowrap text-sm font-medium">Aksi</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -79,14 +79,14 @@
                             <input type="text" id="genre" name="genre" class="form-input" placeholder="Misal: Fiksi, Sejarah">
                             <div id="genre-error" class="text-red-500 text-xs mt-1"></div>
                         </div>
-                        {{-- TAMBAHKAN INPUT TOTAL PAGES DI SINI --}}
-                        <div>
+                        {{-- HAPUS: INPUT TOTAL PAGES DI SINI --}}
+                        {{-- <div>
                             <label for="total_pages" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Halaman</label>
                             <input type="number" id="total_pages" name="total_pages" class="form-input" placeholder="Masukkan jumlah halaman" required min="1">
                             <div id="total_pages-error" class="text-red-500 text-xs mt-1"></div>
-                        </div>
-                        {{-- END TAMBAH INPUT TOTAL PAGES --}}
-                        <div class="md:col-span-1">
+                        </div> --}}
+                        {{-- END HAPUS INPUT TOTAL PAGES --}}
+                        <div class="md:col-span-1"> {{-- Sesuaikan col-span ini jika diperlukan setelah menghapus input halaman --}}
                             <label for="point_value" class="block text-sm font-medium text-gray-700 mb-1">Nilai Poin (saat selesai)</label>
                             <input type="number" id="point_value" name="point_value" class="form-input" placeholder="Misal: 50" required min="1">
                             <div id="point_value-error" class="text-red-500 text-xs mt-1"></div>

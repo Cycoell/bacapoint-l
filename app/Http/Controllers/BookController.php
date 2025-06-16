@@ -40,7 +40,6 @@ class BookController extends Controller
                 'cover_file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'pdf_file' => 'required|mimes:pdf|max:50000',
                 'point_value' => 'required|integer|min:1',
-                'total_pages' => 'required|integer|min:1', // TAMBAH INI
             ], [
                 'cover_file.required' => 'File cover buku wajib diunggah.',
                 'cover_file.image' => 'File cover harus berupa gambar (jpeg, png, jpg, gif).',
@@ -50,9 +49,6 @@ class BookController extends Controller
                 'pdf_file.max' => 'Ukuran file PDF tidak boleh lebih dari 50MB.',
                 'point_value.required' => 'Nilai poin buku wajib diisi.',
                 'point_value.min' => 'Nilai poin minimal 1.',
-                'total_pages.required' => 'Jumlah halaman buku wajib diisi.',
-                'total_pages.integer' => 'Jumlah halaman harus berupa angka.',
-                'total_pages.min' => 'Jumlah halaman minimal 1.',
             ]);
 
             // Panggil BookRepository untuk menyimpan buku
@@ -60,7 +56,6 @@ class BookController extends Controller
                 $validated,
                 $request->file('cover_file'),
                 $request->file('pdf_file'),
-                $validated['total_pages'] // TERUSKAN JUMLAH HALAMAN DARI INPUT MANUAL
             );
 
             return response()->json([
