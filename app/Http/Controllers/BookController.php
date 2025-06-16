@@ -51,10 +51,7 @@ class BookController extends Controller
                 'point_value.min' => 'Nilai poin minimal 1.',
             ]);
 
-            // Jika Anda benar-benar tidak ingin menyentuh file, bahkan saat 'store',
-            // Anda harus menghapus bagian uploadFile dari BookRepository::store()
-            // atau memodifikasi BookRepository::store() untuk tidak mengunggah file.
-            // Saat ini, store() masih akan mengunggah file.
+
             $this->bookRepository->store(
                 $validated,
                 $request->file('cover_file'),
@@ -141,9 +138,6 @@ class BookController extends Controller
                 'point_value' => $validated['point_value']
             ];
 
-            // Tidak ada logika untuk menghapus file lama atau mengunggah file baru di sini.
-            // `cover_path` dan `pdf_path` di database tidak akan diubah oleh proses ini.
-            // `total_pages` juga tidak akan diperbarui secara otomatis dari PDF baru.
 
             // Update data buku di database
             $book->update($updateData);

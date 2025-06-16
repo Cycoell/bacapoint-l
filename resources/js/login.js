@@ -129,6 +129,23 @@
         };
     }
 
+    // FUNGSI BARU: Toggle password visibility
+    window.togglePasswordVisibility = function(inputId, svgId) { // Menerima svgId
+        const passwordInput = document.getElementById(inputId);
+        const svgElement = document.getElementById(svgId); // Mengambil elemen SVG
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            // Path untuk ikon mata terbuka
+            svgElement.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>`;
+        } else {
+            passwordInput.type = 'password';
+            // Path untuk ikon mata tertutup (dengan coretan)
+            svgElement.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.616-1.079a3 3 0 114.5-4.5M10.287 14.113A7.001 7.001 0 0012 14c2.972 0 5.426-1.571 6.558-3.957m-9.754-5.321C11.458 4.606 12 5 12 5s.458-.394.942-.843A10.05 10.05 0 0112 3c4.478 0 8.268 2.943 9.543 7a9.97 9.97 0 01-1.563 3.029m-5.616 1.079a3 3 0 11-4.5 4.5"></path>`;
+        }
+    };
+
+
     let isSignUp = false;
 
     function toggleForm() {
