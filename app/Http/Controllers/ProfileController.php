@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use App\Models\User; // Pastikan ini diimpor dengan benar
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -20,11 +20,11 @@ class ProfileController extends Controller
 
     public function loadSection($section)
     {
-        /** @var \App\Models\User $user */ 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         // Validasi section yang diperbolehkan
-        $allowedSections = ['account', 'transaksi', 'bookmark', 'point', 'riwayat-membaca']; // **TAMBAHKAN INI**
+        $allowedSections = ['account', 'transaksi', 'bookmark', 'point', 'riwayat-membaca'];
         if ($user->role === 'admin') {
             $allowedSections[] = 'grafik';
             $allowedSections[] = 'collection';
@@ -39,52 +39,51 @@ class ProfileController extends Controller
         // Logika untuk section 'collection'
         if ($section === 'collection' && $user->role === 'admin') {
             $books = DB::table('book_list')->orderBy('judul', 'asc')->get();
-            $data['books'] = $books; 
-        } 
+            $data['books'] = $books;
+        }
         // Logika untuk section 'grafik'
         else if ($section === 'grafik' && $user->role === 'admin') {
             $genreData = DB::table('book_list')
                             ->select(DB::raw('genre, count(*) as total_books'))
                             ->groupBy('genre')
-                            ->whereNotNull('genre') 
+                            ->whereNotNull('genre')
                             ->orderBy('total_books', 'desc')
                             ->get();
 
             $labels = $genreData->pluck('genre')->toArray();
             $counts = $genreData->pluck('total_books')->toArray();
 
-            $data['genreLabels'] = json_encode($labels); 
-            $data['genreCounts'] = json_encode($counts); 
+            $data['genreLabels'] = json_encode($labels);
+            $data['genreCounts'] = json_encode($counts);
         }
-        // **TAMBAHKAN LOGIKA INI UNTUK SECTION 'RIWAYAT MEMBACA'**
+        // Logika untuk section 'riwayat-membaca'
         else if ($section === 'riwayat-membaca') {
             $readingHistory = DB::table('reading_history')
                                 ->where('user_id', $user->id)
                                 ->join('book_list', 'reading_history.book_id', '=', 'book_list.id')
                                 ->select(
-                                    'reading_history.*', // Ambil semua kolom dari riwayat
+                                    'reading_history.*',
                                     'book_list.judul',
                                     'book_list.author',
                                     'book_list.cover_path',
                                     'book_list.total_pages',
-                                    'book_list.pdf_path' // Mungkin dibutuhkan untuk link baca
+                                    'book_list.pdf_path'
                                 )
-                                ->orderBy('reading_history.last_read_at', 'desc') // Urutkan berdasarkan waktu terakhir membaca
+                                ->orderBy('reading_history.last_read_at', 'desc')
                                 ->get();
 
             $sedangMembaca = $readingHistory->filter(function($item) {
-                // Sedang membaca: progres kurang dari 100% DAN belum ditandai selesai
                 return $item->progress_percentage < 100 && $item->is_completed_for_points == 0;
             });
 
             $selesaiDibaca = $readingHistory->filter(function($item) {
-                // Selesai dibaca: progres 100% ATAU sudah ditandai selesai
                 return $item->progress_percentage >= 100 || $item->is_completed_for_points == 1;
             });
 
             $data['sedangMembaca'] = $sedangMembaca;
             $data['selesaiDibaca'] = $selesaiDibaca;
         }
+        // Logika untuk section 'bookmark'
         else if ($section === 'bookmark') {
             $bookmarkedBooks = DB::table('bookmarks')
                                 ->where('user_id', $user->id)
@@ -98,12 +97,36 @@ class ProfileController extends Controller
                                     'book_list.cover_path',
                                     'book_list.pdf_path'
                                 )
-                                ->orderBy('bookmarks.created_at', 'desc') // Urutkan berdasarkan waktu bookmark
+                                ->orderBy('bookmarks.created_at', 'desc')
                                 ->get();
             $data['bookmarkedBooks'] = $bookmarkedBooks;
         }
+        // Logika BARU untuk section 'point'
+        else if ($section === 'point') {
+            // Ambil riwayat poin dari reading_history (poin yang diberikan untuk buku)
+            $pointHistory = DB::table('reading_history')
+                                ->where('user_id', $user->id)
+                                ->where('points_awarded_for_book', '>', 0) // Hanya entri yang memberikan poin
+                                ->join('book_list', 'reading_history.book_id', '=', 'book_list.id')
+                                ->select(
+                                    'reading_history.points_awarded_for_book',
+                                    'reading_history.created_at', // Waktu entri riwayat dibuat
+                                    'reading_history.last_read_at', // Waktu terakhir membaca
+                                    'reading_history.progress_percentage', // Persentase saat poin diberikan
+                                    'book_list.judul'
+                                )
+                                ->orderBy('reading_history.updated_at', 'desc') // Urutkan berdasarkan update terakhir
+                                ->get();
 
-        return view("profile.sections.{$section}", $data); 
+            $data['pointHistory'] = $pointHistory;
+
+            // Jika Anda punya jenis transaksi poin lain (misal dari survei, daily login, dll)
+            // Anda perlu tabel terpisah untuk itu dan menggabungkan data di sini.
+            // Contoh placeholder untuk "Selesaikan Survei" di Point.blade.php
+            // tidak akan muncul secara dinamis kecuali Anda menambahkan tabel/logika terpisah.
+        }
+
+        return view("profile.sections.{$section}", $data);
     }
 
     /**
@@ -111,7 +134,7 @@ class ProfileController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        /** @var \App\Models\User $user */ // Type hinting untuk Intelephense
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user) {
@@ -132,7 +155,7 @@ class ProfileController extends Controller
             $user->jenis_kelamin = $request->input('jenis_kelamin');
             $user->tanggal_lahir = $request->input('tanggal_lahir');
             $user->nomor_telepon = $request->input('nomor_telepon');
-            $user->save(); // Method save() akan tersedia karena $user adalah instance model User
+            $user->save();
 
             return response()->json(['success' => true, 'message' => 'Profil berhasil diperbarui.']);
         } catch (\Exception $e) {
@@ -145,7 +168,7 @@ class ProfileController extends Controller
      */
     public function updateProfilePhoto(Request $request)
     {
-        /** @var \App\Models\User $user */ // Type hinting untuk Intelephense
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user) {
@@ -153,7 +176,7 @@ class ProfileController extends Controller
         }
 
         $request->validate([
-            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         try {
@@ -168,7 +191,7 @@ class ProfileController extends Controller
             $file->storeAs('uploads/profiles', $fileName, 'public');
 
             $user->foto_profil = $fileName;
-            $user->save(); // Method save() akan tersedia
+            $user->save();
 
             return response()->json(['success' => true, 'message' => 'Foto profil berhasil diunggah.']);
         } catch (\Exception $e) {
@@ -181,7 +204,7 @@ class ProfileController extends Controller
      */
     public function changePassword(Request $request)
     {
-        /** @var \App\Models\User $user */ // Type hinting untuk Intelephense
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user) {
@@ -202,7 +225,7 @@ class ProfileController extends Controller
 
         try {
             $user->password = Hash::make($request->input('new_password'));
-            $user->save(); // Method save() akan tersedia
+            $user->save();
 
             return response()->json(['success' => true, 'message' => 'Password berhasil diubah.']);
         } catch (\Exception $e) {

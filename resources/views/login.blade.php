@@ -72,20 +72,6 @@
                 Sign In
             </button>
 
-            <!-- Divider -->
-            <div class="flex items-center my-4">
-                <hr class="flex-grow border-gray-300" />
-                <span class="mx-3 text-sm text-gray-500">or</span>
-                <hr class="flex-grow border-gray-300" />
-            </div>
-
-            <!-- Sign in with Google -->
-            <button type="button" 
-                class="w-full flex items-center justify-center border border-gray-300 rounded px-4 py-2 hover:bg-gray-100 transition"
-                onclick="alert('Fitur Google Sign In belum tersedia')">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5 mr-2" />
-                <span class="text-sm text-gray-700 font-medium">Sign in with Google</span>
-            </button>
         </form>
 
         <!-- Overlay -->
