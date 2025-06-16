@@ -56,7 +56,7 @@ class UsersSeeder extends Seeder
                 'nomor_telepon' => '08765432100', // Contoh
                 'foto_profil' => null,
                 'role' => 'user',
-                'poin' => 12, // Poin awal sesuai konteks sebelumnya
+                'poin' => 0, // Poin awal sesuai konteks sebelumnya
                 'created_at' => now(), // **TAMBAHKAN INI**
                 'updated_at' => now(), // **TAMBAHKAN INI**
             ],

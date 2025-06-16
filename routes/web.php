@@ -15,7 +15,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Route untuk semua buku
 Route::get('/all-books', [HomeController::class, 'allBooks'])->name('all.books');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard'); 
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 
@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
     // Rute untuk Bookmark
     Route::post('/api/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('api.bookmarks.toggle');
     Route::get('/api/bookmarks/check/{book_id}', [BookmarkController::class, 'check'])->name('api.bookmarks.check');
+
+    Route::get('/all-bookmarks', [BookmarkController::class, 'showAllBookmarks'])->name('all.bookmarks');
 });
 
 // Tanpa login (bisa akses buku 1–4 saja)

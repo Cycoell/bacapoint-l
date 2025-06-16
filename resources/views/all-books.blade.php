@@ -4,33 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Semua Buku - BacaPoint</title>
-    
-    <!-- Link Icon -->
+
     @include('library.icon')
-    
-    <!-- Link ke file CSS -->
+
     @vite('resources/css/app.css')
 </head>
 <body class="bg-slate-300 bg-no-repeat bg-cover relative" style="background-image: url('{{ e(asset('assets/buku.jpg')) }}')">
-    <!-- Overlay for blur effect -->
     <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-    
-    <!-- Main content -->
+
     <div class="relative z-10">
-        <!-- LINK HEADER -->
         @include('library.header')
-        <!-- LINK HEADER -->
-        
-        <!-- SEMUA BUKU SECTION -->
         <section class="mt-10 mb-10">
             <div class="container mx-auto max-w-6xl px-5 py-6 bg-slate-100 rounded-lg">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold text-gray-800">Semua Buku</h1>
-                    <a href="{{ route('home') }}" class="text-sm text-blue-600 hover:underline font-semibold">
+                    {{-- MODIFIKASI BARIS INI UNTUK MENGARAHKAN KE DASHBOARD JIKA SUDAH LOGIN --}}
+                    <a href="{{ Auth::check() ? route('dashboard') : route('home') }}" class="text-sm text-blue-600 hover:underline font-semibold">
                         ← Kembali ke Beranda
                     </a>
                 </div>
-                
+
                 @if($books && $books->count() > 0)
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         @foreach ($books as $book)
@@ -44,7 +37,7 @@
                     <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-3">
                         <div class="h-48 w-full overflow-hidden rounded mb-3">
                             @if(isset($book->cover_path) && $book->cover_path)
-                                <img src="{{ e($book->cover_path) }}"
+                                <img src="{{ e($book->cover_path) }}" {{-- Pastikan asset() digunakan --}}
                                     alt="Cover buku {{ e($book->judul ?? 'Tanpa Judul') }}"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             @else
@@ -85,10 +78,8 @@
 @endif
             </div>
         </section>
-        
-        <!-- LINK FOOTER -->
+
         @include('library.footer')
-        <!-- LINK FOOTER -->
-    </div>
+        </div>
 </body>
 </html>

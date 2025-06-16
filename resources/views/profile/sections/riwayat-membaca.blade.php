@@ -18,9 +18,6 @@
     <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-800">Sedang Membaca</h3>
-            <a href="#" class="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">
-                Tampilkan semua &rarr;
-            </a>
         </div>
         <div class="flex overflow-x-auto pb-4 -mx-2 sm:-mx-4 md:-mx-6 scrollbar-hide"> {{-- Overflow horizontal, padding bawah --}}
             @forelse($sedangMembaca as $item)
@@ -56,9 +53,6 @@
     <div>
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-800">Selesai Dibaca</h3>
-            <a href="#" class="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">
-                Tampilkan semua &rarr;
-            </a>
         </div>
         <div class="flex overflow-x-auto pb-4 -mx-2 sm:-mx-4 md:-mx-6 scrollbar-hide">
             @forelse($selesaiDibaca as $item)

@@ -87,4 +87,35 @@ class BookmarkController extends Controller
             'is_bookmarked' => $isBookmarked,
         ]);
     }
+
+    /**
+     * Tampilkan halaman terpisah untuk semua buku favorit (bookmark) pengguna yang login.
+     */
+    public function showAllBookmarks()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            // Jika tidak login, arahkan ke halaman login
+            return redirect()->route('login')->with('error', 'Anda harus login untuk melihat buku favorit Anda.');
+        }
+
+        $bookmarkedBooks = DB::table('bookmarks')
+                                ->where('user_id', $user->id)
+                                ->join('book_list', 'bookmarks.book_id', '=', 'book_list.id')
+                                ->select(
+                                    'book_list.id',
+                                    'book_list.judul',
+                                    'book_list.author',
+                                    'book_list.tahun',
+                                    'book_list.genre',
+                                    'book_list.cover_path',
+                                    'book_list.pdf_path'
+                                )
+                                ->orderBy('bookmarks.created_at', 'desc')
+                                ->get();
+
+        return view('all-bookmarks', compact('bookmarkedBooks')); // Mengirim ke view baru
+    }
 }

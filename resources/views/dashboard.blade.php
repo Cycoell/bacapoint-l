@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BacaPoint</title>
-    
+
     @include('library.icon')
 
     @vite('resources/css/app.css')
@@ -118,11 +118,12 @@
       {{-- Section 3: Recommended Books --}}
       <section class="my-8">
       <div class="container mx-auto max-w-4xl bg-gradient-to-br from-emerald-200 to-green-300 px-8 py-8 rounded-3xl shadow-2xl border border-blue-200 transform transition-all duration-300 hover:shadow-xl"> {{-- Ubah gradasi warna, padding lebih besar, rounded lebih, shadow lebih kuat, border --}}
-        
+
         <div class="flex justify-between items-center mb-6"> {{-- Margin bawah yang konsisten --}}
           <h2 class="text-2xl font-extrabold text-gray-800 tracking-tight">Buku Favorit Anda</h2> {{-- Judul lebih besar, tebal, tracking tight --}}
-          <a href="{{ url('/profile/bookmark') }}" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center group"> {{-- Bold, hover effect --}}
-            Lihat Semua 
+          {{-- MODIFIKASI BARIS INI: Link ke halaman semua bookmark --}}
+          <a href="{{ route('all.bookmarks') }}" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center group"> {{-- Bold, hover effect --}}
+            Lihat Semua
             <svg class="w-4 h-4 ml-1 transform transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg> {{-- Ikon panah --}}
           </a>
         </div>
@@ -157,7 +158,7 @@
                     </a>
                 </div>
             @endforelse
-        </div>  
+        </div>
       </div>
     </section>
 
