@@ -37,7 +37,7 @@ class HomeController extends Controller
     {
         try {
             $books = DB::table('book_list')
-                    ->whereNotNull('id')
+                    ->whereNotNull('ids')
                     ->whereNotNull('judul')
                     ->orderBy('id', 'asc')
                     ->get();

@@ -17,13 +17,13 @@ Route::get('/all-books', [HomeController::class, 'allBooks'])->name('all.books')
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard'); 
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/logout', [AuthController::class, 'showLogin'])->name('login');
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'login']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/check-email', [AuthController::class, 'checkEmail']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::post('/login', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'showProfile']);
