@@ -33,7 +33,7 @@ class BookController extends Controller
     {
         try {
             $validated = $request->validate([
-                'titke' => 'required|string|max:255',
+                'judul' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
                 'tahun' => 'nullable|integer|min:1000|max:' . (date('Y') + 5),
                 'genre' => 'nullable|string|max:255',
